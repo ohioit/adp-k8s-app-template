@@ -1,0 +1,33 @@
+{
+    "name": "Devcontainer",
+    "dockerFile": "Dockerfile",
+    "features": {
+        "ghcr.io/devcontainers/features/docker-outside-of-docker": "latest"
+    },
+    "customizations": {
+        "vscode": {
+            "extensions": [
+                "editorconfig.editorconfig",
+                "davidanson.vscode-markdownlint",
+                "redhat.vscode-yaml",
+                "eamodio.gitlens",
+                "ms-azuretools.vscode-docker",
+                "technosophos.vscode-helm",
+                "ms-kubernetes-tools.vscode-kubernetes-tools",
+                "GitHub.copilot",
+                "ms-python.python",
+                "samuelcolvin.jinjahtml",
+                "Github.copilot",
+                "Github.copilot-chat"
+            ]
+        }
+    },
+    "postCreateCommand": "/usr/local/bin/setup-container",
+    "remoteUser": "vscode",
+    "remoteEnv": {
+        "HOST_HOME": "${localEnv:HOME}"
+    },
+    "mounts": [
+        "source=${localEnv:HOME},target=${localEnv:HOME},type=bind,readonly"
+    ]
+}

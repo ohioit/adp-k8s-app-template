@@ -1,0 +1,95 @@
+{
+    "author_name": "",
+    "author_email": "",
+    "team_name": "",
+    "project_name": "",
+    "project_slug": "{{cookiecutter.team_name|lower}}-{{ cookiecutter.project_name.lower().replace(' ', '-') }}-3rdparty-app",
+    "project_description": "Helm chart for {{ cookiecutter.project_name }}. Generated from the 3rd party app template by Cookiecutter.",
+    "project_keywords": "k8s, 3rdparty, application,",
+    "create_container": false,
+    "container_registry": "docker.registry.example.com",
+    "container_image": "{{ cookiecutter.container_registry }}/{{ cookiecutter.team_name|lower }}/{{ cookiecutter.project_name.lower().replace(' ', '-') }}-3rdparty-app",
+    "git_repository": "github.com/ohioit/{{ cookiecutter.project_slug }}",
+    "upstream_project_name": "",
+    "upstream_project_github": "",
+    "upstream_project_documentation": "{{ cookiecutter.upstream_project_github }}",
+    "upstream_project_helm_repo": "",
+    "upstream_project_helm_documentation": "",
+    "upstream_project_version": "",
+    "k8s_environments": "dev,prod",
+    "prod_environment": "{{ cookiecutter.k8s_environments.split(',')|last }}",
+    "test_cluster": ["k8s-sand", "k8s-dev"],
+    "prod_cluster": ["k8s-prod"],
+    "use_app_specific_namespace": false,
+    "k8s_version": ">=1.26.0-0",
+    "ohio_helm_common_version": "<1.0.0",
+    "skaffold_api_version": "v4beta6",
+    "devcontainer_image": "ghcr.io/ohioit/vscode-devcontainer-base:latest",
+
+    "_k8s_cluster_details": {
+      "k8s-sand": {
+        "url": "https://sand.k8s.example.com"
+      },
+      "k8s-dev": {
+        "url": "https://dev.k8s.example.com"
+      },
+      "k8s-prod": {
+        "url": "https://prod.k8s.example.com"
+      }
+    },
+
+    "_k8s_environment_spec": {
+      "sand": {
+        "clusters": ["test_cluster"],
+        "argo_project": "sand",
+        "argo_server_var": "ARGOCD_SERVER_SANDBOX"
+      },
+      "dev": {
+        "clusters": ["test_cluster"],
+        "argo_project": "dev",
+        "argo_server_var": "ARGOCD_SERVER"
+      },
+      "prod": {
+        "clusters": ["prod_cluster"],
+        "argo_project": "prod",
+        "argo_server_var": "ARGOCD_SERVER"
+      }
+    },
+
+    "__prompts__": {
+      "author_name": "Author Name:",
+      "author_email": "Author E-Mail Address:",
+      "team_name": "Short acronym for your organizational Team name, (eg mw or cad):",
+      "project_name": "Human Readable Project Name:",
+      "project_slug": "Project Slug (for use in URLs, Helm Chart Names, etc):",
+      "project_description": "Project Description:",
+      "project_keywords": "Project Keywords:",
+      "git_repository": "Git Repository:",
+
+      "upstream_project_name": "Name of the 3rd Party Project for Helm dependencies:",
+      "upstream_project_github": "Github URL for the 3rd Party Project:",
+      "upstream_project_documentation": "Documentation URL for the 3rd Party Project:",
+      "upstream_project_helm_repo": "Helm Repository for the 3rd Party Project:",
+      "upstream_project_helm_documentation": "Helm Documentation URL for the 3rd Party Project:",
+      "upstream_project_version": "Version of the 3rd Party Project (do not include the OHIO version):",
+
+      "container_registry": "Container Registry (Ignored if you don't use a container):",
+      "container_image": "Container Image Name (Ignored if you don't use a container):",
+      "create_container": "Will this project have a custom docker container?:",
+
+      "k8s_environments": "Comma separated list of environments for this project:",
+      "prod_environment": "Which of the above environment will be the production environment?:",
+      "test_cluster": "Which cluster will the test environments be in?:",
+      "prod_cluster": "Which cluster will the production environments be in?:",
+      "use_app_specific_namespace": "Will this project use a namespace specific to the application?:",
+      "k8s_version": "Minimum Kubernetes Version:",
+
+      "ohio_helm_common_version": "Version for the Ohio Commons Library. Set to empty to not use the library:",
+      "skaffold_api_version": "Skaffold API Version:",
+      "devcontainer_image": "Base image for the Dev Container for this project:"
+    },
+
+    "_copy_without_render": [
+      "helm/templates/common.yaml.tpl"
+    ]
+}

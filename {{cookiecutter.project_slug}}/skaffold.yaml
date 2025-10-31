@@ -1,0 +1,49 @@
+## Configuration for the `skaffold` tool used primarily
+## for running things from the command line.
+#
+## See https://skaffold.dev/docs/references/yaml/
+## for details. Make sure to upgrade the version
+## number as it may be very old. You can run `skaffold fix`
+## to see if it can automate this for you.
+apiVersion: skaffold/{{ cookiecutter.skaffold_api_version }}
+kind: Config
+
+{%- if cookiecutter.create_container %}
+build:
+  artifacts:
+    - image: {{ cookiecutter.container_image }}
+  local:
+    push: true
+{%- endif %}
+
+deploy:
+  helm:
+    releases:
+      - name: {{ cookiecutter.project_slug }}
+        chartPath: helm
+        valuesFiles:
+          - helm/values.yaml
+        {%- if cookiecutter.create_container %}
+        setValueTemplates:
+          image: '{{ "{{" }} .IMAGE_FULLY_QUALIFIED_{{ cookiecutter.container_image | replace(".", "_") | replace("/", "_") | replace(":", "_") | replace("-", "_") }} {{ "}}" }}'
+        {%- endif %}
+
+{%- if cookiecutter.k8s_environments.strip()|length > 0 %}
+profiles:
+{% for environment in cookiecutter.k8s_environments.split(",") %}
+  - name: {{ environment}}
+    deploy:
+      {%- if environment in cookiecutter._k8s_environment_spec and cookiecutter._k8s_environment_spec[environment].clusters|length == 1 %}
+      kubeContext: {{ cookiecutter[cookiecutter._k8s_environment_spec[environment].clusters[0]] }}
+      {%- endif %}
+    patches:
+      - op: add
+        path: /deploy/helm/releases/0/valuesFiles/1
+        value: helm/values/{{ environment }}.yaml
+      {%- if not cookiecutter.use_app_specific_namespace %}
+      - op: add
+        path: /deploy/helm/releases/0/namespace
+        value: {{ cookiecutter.team_name|lower }}-{{ environment }}
+      {%- endif %}
+{%- endfor %}
+{%- endif %}

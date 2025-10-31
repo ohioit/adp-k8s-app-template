@@ -1,0 +1,31 @@
+name: release
+
+on:
+  workflow_dispatch:
+
+  release:
+    types:
+      - released
+
+jobs:
+  deploy-{{ cookiecutter.prod_environment|lower  }}:
+    uses: OIT/ais-reusable-workflows/.github/workflows/release.yaml@main
+    with:
+      runner: {{ cookiecutter.team_name }}
+      environment: {{ cookiecutter.prod_environment|lower  }}
+      skaffold_profile: {{ cookiecutter.prod_environment|lower  }}
+      argocd_token_key: {{ cookiecutter.prod_environment|lower  }}
+      argocd_project: {{ cookiecutter.team_name|lower }}-{{ cookiecutter._k8s_environment_spec[cookiecutter.prod_environment|lower].argo_project }}
+      target_cluster: {{ cookiecutter._k8s_cluster_details[cookiecutter[cookiecutter._k8s_environment_spec[cookiecutter.prod_environment|lower].clusters[0]]].url }}
+      target_namespace: {% if cookiecutter.use_app_specific_namespace %}{{ cookiecutter.project_slug }}{% else %}{{ cookiecutter.team_name|lower }}-{{ cookiecutter.prod_environment|lower }}{% endif %}
+      {%- raw %}
+      prerelease: ${{ github.event.release.prerelease }}
+    secrets:
+      artifactory_helm_repository: ${{ vars.ARTIFACTORY_HELM_REPOSITORY }}
+      artifactory_username: ${{ vars.ARTIFACTORY_USERNAME }}
+      artifactory_token: ${{ secrets.ARTIFACTORY_TOKEN }}
+      {%- endraw %}
+      github_pat: {{ "${{" }} secrets.{{ cookiecutter.team_name|upper }}_GITHUB_PAT {{ "}}" }}
+      github_username: {{ "${{" }} vars.{{ cookiecutter.team_name|upper }}_GITHUB_SERVICE_ACCOUNT {{ "}}" }}
+      argocd_server: {{ "${{" }} vars.{{ cookiecutter._k8s_environment_spec[cookiecutter.prod_environment].argo_server_var }}{{ "}}" }}
+      argocd_tokens: {{ "${{" }} secrets.{{ cookiecutter.team_name|upper }}_ARGOCD_TOKENS {{ "}}" }}
