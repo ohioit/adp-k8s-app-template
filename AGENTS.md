@@ -149,12 +149,9 @@ python3 -m venv .venv && .venv/bin/pip install -r test/requirements.txt   # once
 These are left in deliberately, so don't "fix" them without asking:
 
 - `build.yaml` hard-codes `secrets.CAD_GITHUB_PAT`. `deploy` and `release` use `<TEAM>_GITHUB_PAT`.
-- The top-level README tells you to run `cookiecutter /workspaces/template-3rdparty-app`, but the
-  repo is named `example-3rdparty-app`.
 - The generated `helm/README.md` links `templates/_common.tpl`, which doesn't exist (the helpers
   come from the `common` library chart). It also says there are two environments, "test and
   prod", whatever environments were chosen.
-- The repo is still named `example-3rdparty-app`, even though the template is now generic.
 - Replay files store the already-rendered `project_slug` and `container_image`. Changing
   `project_type` or `deploy_3rdparty_chart` in a replay file does not change the suffix. Edit
   those values too, or re-run without `--replay`.

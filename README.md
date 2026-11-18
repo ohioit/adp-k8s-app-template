@@ -65,10 +65,10 @@ Next, navigate to a folder on your system where you want your new project to be,
 run:
 
 ```bash
-cookiecutter https://github.com/ohioit/example-3rdparty-app.git
+cookiecutter https://github.com/ohioit/adp-k8s-app-template.git
 ```
 
-> [!NOTE] If you are using SSH keys, be sure to change that to `git@github.com/ohioit/example-3rdparty-app.git`
+> [!NOTE] If you are using SSH keys, be sure to change that to `git@github.com:ohioit/adp-k8s-app-template.git`
 
 Answer the questions presented by Cookiecutter. When you're finished, there
 should be a new directory with your project name. If you would like, you
@@ -91,7 +91,7 @@ Template development is fairly easy inside of the devcontainer. When you
 are ready to test the template, simply `cd ~` and run:
 
 ```bash
-cookiecutter /workspaces/template-3rdparty-app
+cookiecutter /workspaces/adp-k8s-app-template
 ```
 
 A new directory will be generated using the project slug you specified. You
@@ -107,7 +107,7 @@ To facilitate more rapid iteration, add the `-f --replay` tags to:
 > [!WARNING] A replay file saves a fully generated `cookiecutter.json`.
 > If you make changes to the `cookiecutter.json` in the template, those
 > changes **will not** be reflected in a replay. Either run without replaying
-> again, or simply manually edit `~/.cookiecutter_replay/template-3rdparty-app.json`.
+> again, or simply manually edit `~/.cookiecutter_replay/adp-k8s-app-template.json`.
 
 For more information, check out the
 [extensive cookiecutter documentation](https://cookiecutter.readthedocs.io).
