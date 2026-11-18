@@ -11,16 +11,16 @@ on:
         required: false
 
 jobs:
-  {% for environment in cookiecutter.k8s_environments.split(",") if environment != cookiecutter.prod_environment %}
-  deploy-{{ environment }}:
+  {% for env in cookiecutter|k8s_environments if env.kind == "test" %}
+  deploy-{{ env.name }}:
     uses: OIT/ais-reusable-workflows/.github/workflows/deploy.yaml@main
-    if: ${{ "{{" }} github.event.inputs.env == '{{ environment|lower }}' {{ "}}" }}
+    if: ${{ "{{" }} github.event.inputs.env == '{{ env.name }}' {{ "}}" }}
     with:
       runner: {{ cookiecutter.team_name }}
-      argocd_token_key: {{ environment|lower }}
-      argocd_project: {{ cookiecutter.team_name|lower }}-{{ cookiecutter._k8s_environment_spec[environment|lower].argo_project }}
-      target_cluster: {{ cookiecutter._k8s_cluster_details[cookiecutter[cookiecutter._k8s_environment_spec[environment|lower].clusters[0]]].url }}
-      target_namespace: {% if cookiecutter.use_app_specific_namespace %}{{ cookiecutter.project_slug }}{% else %}{{ cookiecutter.team_name|lower }}-{{ environment|lower }}{% endif %}
+      argocd_token_key: {{ env.name }}
+      argocd_project: {{ cookiecutter.team_name|lower }}-{{ env.argo_project }}
+      target_cluster: {{ env.cluster_url }}
+      target_namespace: {{ env.namespace }}
       {%- raw %}
       skaffold_profile: ${{ github.event.inputs.env }}
       environment: ${{ github.event.inputs.env }}
@@ -32,6 +32,6 @@ jobs:
       {%- endraw %}
       github_pat: {{ "${{" }} secrets.{{ cookiecutter.team_name|upper }}_GITHUB_PAT {{ "}}" }}
       github_username: {{ "${{" }} vars.{{ cookiecutter.team_name|upper }}_GITHUB_SERVICE_ACCOUNT {{ "}}" }}
-      argocd_server: {{ "${{" }} vars.{{ cookiecutter._k8s_environment_spec[environment|lower].argo_server_var }}{{ "}}" }}
+      argocd_server: {{ "${{" }} vars.{{ env.argo_server_var }}{{ "}}" }}
       argocd_tokens: {{ "${{" }} secrets.{{ cookiecutter.team_name|upper }}_ARGOCD_TOKENS {{ "}}" }}
   {% endfor %}

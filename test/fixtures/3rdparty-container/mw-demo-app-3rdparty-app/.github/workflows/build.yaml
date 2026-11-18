@@ -1,0 +1,23 @@
+name: build
+
+on:
+  workflow_dispatch: {}
+
+  push:
+    branches:
+      - "cs/*"
+    paths-ignore:
+      - '**/README.md'
+
+jobs:
+  build-push-scan:
+    uses: OIT/ais-reusable-workflows/.github/workflows/build.yaml@main
+    with:
+      runner: mw
+      allow_missing_dockerfiles: true
+    secrets:
+      github_pat: ${{ secrets.CAD_GITHUB_PAT }}
+      artifactory_username: ${{ vars.ARTIFACTORY_USERNAME }}
+      artifactory_token: ${{ secrets.ARTIFACTORY_TOKEN }}
+      artifactory_registry: ${{ vars.ARTIFACTORY_REGISTRY }}
+      artifactory_helm_repository: ${{ vars.ARTIFACTORY_HELM_REPOSITORY }}

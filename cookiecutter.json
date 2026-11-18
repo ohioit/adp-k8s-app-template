@@ -3,12 +3,15 @@
     "author_email": "",
     "team_name": "",
     "project_name": "",
-    "project_slug": "{{cookiecutter.team_name|lower}}-{{ cookiecutter.project_name.lower().replace(' ', '-') }}-3rdparty-app",
-    "project_description": "Helm chart for {{ cookiecutter.project_name }}. Generated from the 3rd party app template by Cookiecutter.",
-    "project_keywords": "k8s, 3rdparty, application,",
+    "project_type": ["app", "ui", "api", "integration"],
+    "deploy_3rdparty_chart": true,
+    "__project_suffix": "{% if cookiecutter.deploy_3rdparty_chart %}-3rdparty{% endif %}-{{ cookiecutter.project_type }}",
+    "project_slug": "{{cookiecutter.team_name|lower}}-{{ cookiecutter.project_name.lower().replace(' ', '-') }}{{ cookiecutter.__project_suffix }}",
+    "project_description": "Helm chart for {{ cookiecutter.project_name }}. Generated from the Ohio application template by Cookiecutter.",
+    "project_keywords": "k8s,{% if cookiecutter.deploy_3rdparty_chart %} 3rdparty,{% endif %} application,",
     "create_container": false,
     "container_registry": "docker.registry.example.com",
-    "container_image": "{{ cookiecutter.container_registry }}/{{ cookiecutter.team_name|lower }}/{{ cookiecutter.project_name.lower().replace(' ', '-') }}-3rdparty-app",
+    "container_image": "{{ cookiecutter.container_registry }}/{{ cookiecutter.team_name|lower }}/{{ cookiecutter.project_name.lower().replace(' ', '-') }}{{ cookiecutter.__project_suffix }}",
     "git_repository": "github.com/ohioit/{{ cookiecutter.project_slug }}",
     "upstream_project_name": "",
     "upstream_project_github": "",
@@ -16,10 +19,12 @@
     "upstream_project_helm_repo": "",
     "upstream_project_helm_documentation": "",
     "upstream_project_version": "",
-    "k8s_environments": "dev,prod",
-    "prod_environment": "{{ cookiecutter.k8s_environments.split(',')|last }}",
-    "test_cluster": ["k8s-sand", "k8s-dev"],
-    "prod_cluster": ["k8s-prod"],
+    "chart_version": "{% if cookiecutter.deploy_3rdparty_chart %}{{ cookiecutter.upstream_project_version }}-OHIO-1{% else %}0.1.0{% endif %}",
+    "prod_cluster": ["k8s-prod", "k8s-sand", "k8s-dev", "none"],
+    "prod_environment": "prod",
+    "test_cluster": ["k8s-sand", "k8s-dev", "k8s-prod", "none"],
+    "test_environment": "dev",
+    "additional_environments": "",
     "use_app_specific_namespace": false,
     "k8s_version": ">=1.26.0-0",
     "ohio_helm_common_version": "<1.0.0",
@@ -38,19 +43,18 @@
       }
     },
 
+    "_extensions": ["local_extensions.k8s_environments", "local_extensions.k8s_environment_errors"],
+
     "_k8s_environment_spec": {
       "sand": {
-        "clusters": ["test_cluster"],
         "argo_project": "sand",
         "argo_server_var": "ARGOCD_SERVER_SANDBOX"
       },
       "dev": {
-        "clusters": ["test_cluster"],
         "argo_project": "dev",
         "argo_server_var": "ARGOCD_SERVER"
       },
       "prod": {
-        "clusters": ["prod_cluster"],
         "argo_project": "prod",
         "argo_server_var": "ARGOCD_SERVER"
       }
@@ -61,26 +65,36 @@
       "author_email": "Author E-Mail Address:",
       "team_name": "Short acronym for your organizational Team name, (eg mw or cad):",
       "project_name": "Human Readable Project Name:",
+      "project_type": {
+        "__prompt__": "What kind of project is this?",
+        "app": "app: a full application (UI and backend)",
+        "ui": "ui: a UI only (static, in-browser, using backend services not in this repo)",
+        "api": "api: an API only",
+        "integration": "integration: a batch job, scheduled task, or other integration"
+      },
+      "deploy_3rdparty_chart": "Will this project deploy a 3rd-party application that already has a Helm chart?:",
       "project_slug": "Project Slug (for use in URLs, Helm Chart Names, etc):",
       "project_description": "Project Description:",
       "project_keywords": "Project Keywords:",
       "git_repository": "Git Repository:",
 
-      "upstream_project_name": "Name of the 3rd Party Project for Helm dependencies:",
-      "upstream_project_github": "Github URL for the 3rd Party Project:",
-      "upstream_project_documentation": "Documentation URL for the 3rd Party Project:",
-      "upstream_project_helm_repo": "Helm Repository for the 3rd Party Project:",
-      "upstream_project_helm_documentation": "Helm Documentation URL for the 3rd Party Project:",
-      "upstream_project_version": "Version of the 3rd Party Project (do not include the OHIO version):",
+      "upstream_project_name": "Name of the 3rd Party Helm chart dependency (Ignored unless deploying a 3rd-party chart):",
+      "upstream_project_github": "Github URL for the 3rd Party Project (Ignored unless deploying a 3rd-party chart):",
+      "upstream_project_documentation": "Documentation URL for the 3rd Party Project (Ignored unless deploying a 3rd-party chart):",
+      "upstream_project_helm_repo": "Helm Repository for the 3rd Party Project (Ignored unless deploying a 3rd-party chart):",
+      "upstream_project_helm_documentation": "Helm Documentation URL for the 3rd Party Project (Ignored unless deploying a 3rd-party chart):",
+      "upstream_project_version": "Version of the 3rd Party Project, do not include the OHIO version (Ignored unless deploying a 3rd-party chart):",
+      "chart_version": "Initial Helm chart version:",
 
       "container_registry": "Container Registry (Ignored if you don't use a container):",
       "container_image": "Container Image Name (Ignored if you don't use a container):",
       "create_container": "Will this project have a custom docker container?:",
 
-      "k8s_environments": "Comma separated list of environments for this project:",
-      "prod_environment": "Which of the above environment will be the production environment?:",
-      "test_cluster": "Which cluster will the test environments be in?:",
-      "prod_cluster": "Which cluster will the production environments be in?:",
+      "prod_cluster": "Which cluster will the production environment run in? Choose 'none' if this project has no production environment (no release workflow is generated):",
+      "prod_environment": "Name of the production environment (Ignored if the production cluster is 'none'):",
+      "test_cluster": "Which cluster will the test environment run in? Choose 'none' if this project has no test environment:",
+      "test_environment": "Name of the test environment (Ignored if the test cluster is 'none'):",
+      "additional_environments": "Additional test environments as comma separated name:cluster pairs, e.g. sand:k8s-sand,stage:k8s-dev (Leave blank for none):",
       "use_app_specific_namespace": "Will this project use a namespace specific to the application?:",
       "k8s_version": "Minimum Kubernetes Version:",
 

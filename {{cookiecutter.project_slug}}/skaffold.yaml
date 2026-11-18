@@ -27,23 +27,18 @@ deploy:
         setValueTemplates:
           image: '{{ "{{" }} .IMAGE_FULLY_QUALIFIED_{{ cookiecutter.container_image | replace(".", "_") | replace("/", "_") | replace(":", "_") | replace("-", "_") }} {{ "}}" }}'
         {%- endif %}
-
-{%- if cookiecutter.k8s_environments.strip()|length > 0 %}
+{%- for env in cookiecutter|k8s_environments %}
+{%- if loop.first %}
 profiles:
-{% for environment in cookiecutter.k8s_environments.split(",") %}
-  - name: {{ environment}}
+{% endif %}
+  - name: {{ env.name }}
     deploy:
-      {%- if environment in cookiecutter._k8s_environment_spec and cookiecutter._k8s_environment_spec[environment].clusters|length == 1 %}
-      kubeContext: {{ cookiecutter[cookiecutter._k8s_environment_spec[environment].clusters[0]] }}
-      {%- endif %}
+      kubeContext: {{ env.cluster }}
     patches:
       - op: add
         path: /deploy/helm/releases/0/valuesFiles/1
-        value: helm/values/{{ environment }}.yaml
-      {%- if not cookiecutter.use_app_specific_namespace %}
+        value: helm/values/{{ env.name }}.yaml
       - op: add
         path: /deploy/helm/releases/0/namespace
-        value: {{ cookiecutter.team_name|lower }}-{{ environment }}
-      {%- endif %}
+        value: {{ env.namespace }}
 {%- endfor %}
-{%- endif %}

@@ -13,11 +13,19 @@ or you can customize them with [kustomize](https://kubernetes.io/docs/tasks/mana
 You could render those manifests with templates using [helm](https://helm.sh/docs/), bringing
 in other dependencies as well or deploy and manage entire lifecycles with
 [operators](https://olm.operatorframework.io/).
+{%- if cookiecutter.deploy_3rdparty_chart %}
 
 For now, we have chosen to manage third party applications using
 [helm](https://helm.sh/docs/). Helm allows us to both pull in third party
 definitions _and_ customize them by adding our own resources like
-secrets. Additionally, helm can be integrated with _both_ [skaffold](https://skaffold.dev/docs/)
+secrets.
+{%- else %}
+
+For now, we have chosen to manage applications using
+[helm](https://helm.sh/docs/). Helm lets us template our Kubernetes resources,
+pull in other charts as dependencies, and keep per-environment settings
+separate.
+{%- endif %} Additionally, helm can be integrated with _both_ [skaffold](https://skaffold.dev/docs/)
 and [ArgoCD](https://argo-cd.readthedocs.io/en/stable/).
 
 ## Usage
@@ -52,13 +60,15 @@ or even the [Cloud Code](https://marketplace.visualstudio.com/items?itemName=Goo
 extension to work with the project:
 
 - `skaffold dev`: Deploy to Kubernetes, tailing log files, and delete everything when finished.
-- `skaffold build`: Build and push any customized Doocker images.
+- `skaffold build`: Build and push the project's Docker images, if any.
 - `skaffold delete`: Delete everything.
 - `skaffold run`: Deploy everything to Kubernetes
 - `skaffold render`: Render the helm chart and show what _would_ be deployed.
+{%- if cookiecutter.deploy_3rdparty_chart or cookiecutter.ohio_helm_common_version.strip()|length > 0 %}
 
-> Note: Some of these commands will not work until the Helm chart is downloaded. You can manually do that
-> with Helm or simply do a `skaffold run` to grab them.
+> Note: Some of these commands will not work until the Helm chart dependencies are downloaded. You can
+> manually do that with `helm dependency update helm` or simply do a `skaffold run` to grab them.
+{% endif %}
 {% if cookiecutter.ohio_helm_common_version.strip()|length > 0 -%}
 ## Common Library
 
@@ -79,11 +89,15 @@ about that part of the repository.
 The main entrypoint for command line work, see [the docs](https://skaffold.dev/docs/)
 for details.
 
-### [docker](docker)
+{% if cookiecutter.create_container -%}
+### [Dockerfile](Dockerfile)
 
-Contains all docker images used for any customizations to the provided images
-or any additional images, if any.
+Builds the project's container image, `{{ cookiecutter.container_image }}`.
+{%- if cookiecutter.deploy_3rdparty_chart %} Use it for any
+customizations to the images the upstream chart provides.
+{%- endif %}
 
+{% endif -%}
 ### [helm](helm)
 
 Contains all of the deployment manifests and configuration, including
@@ -93,10 +107,6 @@ secrets.
 
 There is not a valid default profile. Because of a lack of dev environment, you must
 specify a profile with `-p`. Currently, the following profiles exist:
-{% for environment in cookiecutter.k8s_environments.split(",") -%}
-{%- if environment in cookiecutter._k8s_environment_spec and cookiecutter._k8s_environment_spec[environment].clusters|length == 1 %}
-- {{ environment }}: Deploys to {{ cookiecutter.team_name|lower }}-{{ environment }} in {{ cookiecutter[cookiecutter._k8s_environment_spec[environment].clusters[0]] }}
-{%- else %}
-- {{ environment }}: Deploys to {{ cookiecutter.team_name|lower }}-{{ environment }} in your default cluster.
-{%- endif %}
+{% for env in cookiecutter|k8s_environments %}
+- {{ env.name }}: Deploys to {{ env.namespace }} in {{ env.cluster }}{% if env.kind == "prod" %} (production, deployed by the release workflow){% endif %}
 {%- endfor %}

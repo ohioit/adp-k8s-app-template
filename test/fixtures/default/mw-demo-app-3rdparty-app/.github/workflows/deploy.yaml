@@ -1,0 +1,35 @@
+name: deploy
+
+on:
+  workflow_dispatch:
+    inputs:
+      env:
+        description: 'The environment to which a deployment should be done'
+        required: true
+      ref:
+        description: 'The ref to deploy to the specified environment'
+        required: false
+
+jobs:
+  
+  deploy-dev:
+    uses: OIT/ais-reusable-workflows/.github/workflows/deploy.yaml@main
+    if: ${{ github.event.inputs.env == 'dev' }}
+    with:
+      runner: mw
+      argocd_token_key: dev
+      argocd_project: mw-dev
+      target_cluster: https://sand.k8s.example.com
+      target_namespace: mw-dev
+      skaffold_profile: ${{ github.event.inputs.env }}
+      environment: ${{ github.event.inputs.env }}
+      ref: ${{ github.event.inputs.ref }}
+    secrets:
+      artifactory_helm_repository: ${{ vars.ARTIFACTORY_HELM_REPOSITORY }}
+      artifactory_username: ${{ vars.ARTIFACTORY_USERNAME }}
+      artifactory_token: ${{ secrets.ARTIFACTORY_TOKEN }}
+      github_pat: ${{ secrets.MW_GITHUB_PAT }}
+      github_username: ${{ vars.MW_GITHUB_SERVICE_ACCOUNT }}
+      argocd_server: ${{ vars.ARGOCD_SERVER}}
+      argocd_tokens: ${{ secrets.MW_ARGOCD_TOKENS }}
+  

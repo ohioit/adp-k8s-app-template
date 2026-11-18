@@ -7,17 +7,17 @@ on:
     types:
       - released
 
-jobs:
-  deploy-{{ cookiecutter.prod_environment|lower  }}:
+jobs:{% for env in cookiecutter|k8s_environments if env.kind == "prod" %}
+  deploy-{{ env.name }}:
     uses: OIT/ais-reusable-workflows/.github/workflows/release.yaml@main
     with:
       runner: {{ cookiecutter.team_name }}
-      environment: {{ cookiecutter.prod_environment|lower  }}
-      skaffold_profile: {{ cookiecutter.prod_environment|lower  }}
-      argocd_token_key: {{ cookiecutter.prod_environment|lower  }}
-      argocd_project: {{ cookiecutter.team_name|lower }}-{{ cookiecutter._k8s_environment_spec[cookiecutter.prod_environment|lower].argo_project }}
-      target_cluster: {{ cookiecutter._k8s_cluster_details[cookiecutter[cookiecutter._k8s_environment_spec[cookiecutter.prod_environment|lower].clusters[0]]].url }}
-      target_namespace: {% if cookiecutter.use_app_specific_namespace %}{{ cookiecutter.project_slug }}{% else %}{{ cookiecutter.team_name|lower }}-{{ cookiecutter.prod_environment|lower }}{% endif %}
+      environment: {{ env.name }}
+      skaffold_profile: {{ env.name }}
+      argocd_token_key: {{ env.name }}
+      argocd_project: {{ cookiecutter.team_name|lower }}-{{ env.argo_project }}
+      target_cluster: {{ env.cluster_url }}
+      target_namespace: {{ env.namespace }}
       {%- raw %}
       prerelease: ${{ github.event.release.prerelease }}
     secrets:
@@ -27,5 +27,5 @@ jobs:
       {%- endraw %}
       github_pat: {{ "${{" }} secrets.{{ cookiecutter.team_name|upper }}_GITHUB_PAT {{ "}}" }}
       github_username: {{ "${{" }} vars.{{ cookiecutter.team_name|upper }}_GITHUB_SERVICE_ACCOUNT {{ "}}" }}
-      argocd_server: {{ "${{" }} vars.{{ cookiecutter._k8s_environment_spec[cookiecutter.prod_environment].argo_server_var }}{{ "}}" }}
-      argocd_tokens: {{ "${{" }} secrets.{{ cookiecutter.team_name|upper }}_ARGOCD_TOKENS {{ "}}" }}
+      argocd_server: {{ "${{" }} vars.{{ env.argo_server_var }}{{ "}}" }}
+      argocd_tokens: {{ "${{" }} secrets.{{ cookiecutter.team_name|upper }}_ARGOCD_TOKENS {{ "}}" }}{% endfor %}

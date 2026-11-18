@@ -1,0 +1,9 @@
+# Test dependencies for the cookiecutter template. Install with:
+#   python3 -m pip install -r test/requirements.txt
+# cookiecutter is pinned exactly because whitespace in the generated output,
+# and so the fixtures, can change between versions.
+cookiecutter==2.7.1
+pytest==9.2.0
+pytest-cookies==0.7.0
+PyYAML==6.0.3
+actionlint-py==1.7.12.25

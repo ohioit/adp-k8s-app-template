@@ -1,0 +1,69 @@
+## This file defines your Helm Chart. This is the
+## app you're deploying.
+apiVersion: v2
+
+## The name of the chart. This name will show up all over
+## the cluster and in charts, graphs, alerts, etc.
+## This will likely match the upstream app name for
+## convenience. If you've been asked to deploy, say,
+## TeamDynamix, the name should probably be TeamDynamix
+## or team-dynamix or whatever.
+name: mw-demo-app-3rdparty-app
+
+## What is this app?
+description: |
+  Helm chart for Demo App. Generated from the Ohio application template by Cookiecutter.
+
+## The version of _this chart_. By convention, we use the
+## following format: { upstream app version }-OHIO-{ single increasing number }
+##
+## The OHIO version always starts 1 for every upstream version.
+## If your version was 1.1.2-OHIO-53 and you bump the upstream
+## to 1.1.3, you should set the version to 1.1.3-OHIO-1.
+version: 1.2.3-OHIO-1
+
+## If the upstream application version is different from the
+## chart version, set it here.
+appVersion: 1.2.3
+
+## On which Kubernetes versions can this be deployed? This should
+## match the minimum version on which this has been tested. This
+## can be _critical_ to get correctly. For example, if you've been
+## testing this on 1.21.x, which deprecated many old API versions
+## but then tried to deploy to 1.22.x and this is not set correctly,
+## the deployment will fail, possibly breaking something in prod.
+kubeVersion: ">=1.26.0-0"
+keywords:
+    - k8s
+    - 3rdparty
+    - application
+    ## Add any additional key words that might be useful, some
+    ## keywords to consider: your team name, your customer,
+    ## etc. These are _tags_ that could be used in grouping
+    ## and reporting later. Don't include things that other apps
+    ## would not have like ticket numbers or human names.
+
+## This MUST point to your git repository. Like super must. Like
+## someone will show up with smoke coming out of their ears must.
+home: github.com/ohioit/mw-demo-app-3rdparty-app
+
+## Optionally, list anyone involved in putting this project together.
+## Generally, it would be good to list anyone who knows important
+## information about this project.
+maintainers:
+    - name: Test Author
+      email: test.author@example.com
+
+## Pull in any dependencies here. You'll need the helm repository
+## where the dependency is, artifacthub.io is a good way to search,
+## the version as a semver to pull in. We prefer using exact versions
+## so we're not surprised by upgrades.
+dependencies:
+    - name: demo
+      version: "~1.2.3"
+      repository: https://charts.example.com
+    - name: common
+      version: "<1.0.0"
+      repository: "https://registry.example.com/artifactory/helm"
+
+type: application

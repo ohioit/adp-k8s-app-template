@@ -6,12 +6,14 @@ The helm chart in this directory will fully deploy this application
 to the desired environment. Currently there are two, test and prod.
 
 Check the [values.yaml](values.yaml) for settings documentation
+{%- if cookiecutter.deploy_3rdparty_chart -%}
 {%- if cookiecutter.upstream_project_helm_documentation.strip()|length > 0 -%}
 and the [upstream helm chart]({{ cookiecutter.upstream_project_helm_documentation}})
 {%- endif -%}
 {%- if cookiecutter.upstream_project_documentation -%}
 as well as the [application documentation]({{ cookiecutter.upstream_project_documentation}})
 documentation for details
+{%- endif -%}
 {%- endif -%}.
 
 All files in the [templates](templates) subdirectory will be rendered

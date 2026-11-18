@@ -1,0 +1,39 @@
+## Configuration for the `skaffold` tool used primarily
+## for running things from the command line.
+#
+## See https://skaffold.dev/docs/references/yaml/
+## for details. Make sure to upgrade the version
+## number as it may be very old. You can run `skaffold fix`
+## to see if it can automate this for you.
+apiVersion: skaffold/v4beta6
+kind: Config
+
+deploy:
+  helm:
+    releases:
+      - name: mw-demo-app-3rdparty-app
+        chartPath: helm
+        valuesFiles:
+          - helm/values.yaml
+profiles:
+
+  - name: dev
+    deploy:
+      kubeContext: k8s-sand
+    patches:
+      - op: add
+        path: /deploy/helm/releases/0/valuesFiles/1
+        value: helm/values/dev.yaml
+      - op: add
+        path: /deploy/helm/releases/0/namespace
+        value: mw-dev
+  - name: prod
+    deploy:
+      kubeContext: k8s-sand
+    patches:
+      - op: add
+        path: /deploy/helm/releases/0/valuesFiles/1
+        value: helm/values/prod.yaml
+      - op: add
+        path: /deploy/helm/releases/0/namespace
+        value: mw-prod

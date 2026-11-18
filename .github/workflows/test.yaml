@@ -1,0 +1,42 @@
+name: test
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  template:
+    runs-on: ubuntu-latest
+    env:
+      # Keep in sync with the skaffold version in ghcr.io/ohioit/vscode-devcontainer-base.
+      SKAFFOLD_VERSION: "2.25.0"
+      # Fail instead of skipping when skaffold or actionlint is missing.
+      REQUIRE_TOOLS: "1"
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+
+      - name: Set up Python
+        uses: actions/setup-python@v7
+        with:
+          python-version: "3.14"
+          cache: pip
+          cache-dependency-path: test/requirements.txt
+
+      - name: Install test dependencies
+        run: python -m pip install -r test/requirements.txt
+
+      - name: Install skaffold
+        run: |
+          curl -fsSLo "${RUNNER_TEMP}/skaffold" \
+            "https://github.com/GoogleContainerTools/skaffold/releases/download/v${SKAFFOLD_VERSION}/skaffold-linux-amd64"
+          install -m 0755 "${RUNNER_TEMP}/skaffold" /usr/local/bin/skaffold
+          skaffold version
+
+      - name: Run tests
+        run: pytest
