@@ -1,0 +1,34 @@
+{
+    "name": "mw-demo-app-app",
+    "image": "ghcr.io/ohioit/vscode-devcontainer-base",
+    "features": {
+        "ghcr.io/devcontainers/features/docker-outside-of-docker": "latest"
+    },
+    "customizations": {
+        "vscode": {
+            "extensions": [
+                "editorconfig.editorconfig",
+                "davidanson.vscode-markdownlint",
+                "timonwong.shellcheck",
+                "redhat.vscode-yaml",
+                "eamodio.gitlens",
+                "ms-azuretools.vscode-docker",
+                "technosophos.vscode-helm",
+                "ms-kubernetes-tools.vscode-kubernetes-tools",
+                "codecontemplator.kubeseal",
+                "GitHub.copilot"
+            ],
+            "settings": {
+                "kubeseal.executablePath": "/usr/local/bin/kubeseal"
+            }
+        }
+    },
+    "postCreateCommand": "/usr/local/bin/setup-container",
+    "remoteUser": "vscode",
+    "remoteEnv": {
+        "HOST_HOME": "${localEnv:HOME}"
+    },
+    "mounts": [
+        "source=${localEnv:HOME},target=${localEnv:HOME},type=bind,readonly"
+    ]
+}

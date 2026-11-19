@@ -1,0 +1,29 @@
+name: release
+
+on:
+  workflow_dispatch:
+
+  release:
+    types:
+      - released
+
+jobs:
+  deploy-production:
+    uses: OIT/ais-reusable-workflows/.github/workflows/release.yaml@main
+    with:
+      runner: mw
+      environment: production
+      skaffold_profile: production
+      argocd_token_key: production
+      argocd_project: mw-production
+      target_cluster: https://prod.k8s.example.com
+      target_namespace: mw-production
+      prerelease: ${{ github.event.release.prerelease }}
+    secrets:
+      artifactory_helm_repository: ${{ vars.ARTIFACTORY_HELM_REPOSITORY }}
+      artifactory_username: ${{ vars.ARTIFACTORY_USERNAME }}
+      artifactory_token: ${{ secrets.ARTIFACTORY_TOKEN }}
+      github_pat: ${{ secrets.MW_GITHUB_PAT }}
+      github_username: ${{ vars.MW_GITHUB_SERVICE_ACCOUNT }}
+      argocd_server: ${{ vars.ARGOCD_SERVER}}
+      argocd_tokens: ${{ secrets.MW_ARGOCD_TOKENS }}

@@ -6,10 +6,12 @@ REMOVE_PATHS = [
     '{% if not cookiecutter.create_container %}Dockerfile{% endif %}',
     '{% if not cookiecutter.create_container %}.dockerignore{% endif %}',
     '{% if not cookiecutter.create_container %}.github/workflows/build.yaml{% endif %}',
-    '{% if cookiecutter.k8s_environments|length == 0 %}.github/workflows/deploy.yaml{% endif %}',
-    '{% if cookiecutter.k8s_environments|length == 0 %}.github/workflows/release.yaml{% endif %}',
-    '{% if "prod" not in cookiecutter.k8s_environments %}.github/workflows/release.yaml{% endif %}',
-    '{% if cookiecutter.ohio_helm_common_version.strip()|length == 0 %}helm/templates/common.yaml.tpl{% endif %}'
+    # deploy.yaml deploys the test environments, release.yaml the production one.
+    '{% if not (cookiecutter|k8s_environments|selectattr("kind", "equalto", "test")|list) %}.github/workflows/deploy.yaml{% endif %}',
+    '{% if not (cookiecutter|k8s_environments|selectattr("kind", "equalto", "prod")|list) %}.github/workflows/release.yaml{% endif %}',
+    '{% if cookiecutter.ohio_helm_common_version.strip()|length == 0 %}helm/templates/common.yaml.tpl{% endif %}',
+    # helm/.gitignore only ignores downloaded chart dependencies.
+    '{% if not cookiecutter.deploy_3rdparty_chart and cookiecutter.ohio_helm_common_version.strip()|length == 0 %}helm/.gitignore{% endif %}'
 ]
 
 for path in REMOVE_PATHS:
@@ -20,8 +22,7 @@ for path in REMOVE_PATHS:
         else:
             os.remove(path)
 
-K8S_ENVIRONMENTS = "{{ cookiecutter.k8s_environments }}".split(',')
-K8S_ENVIRONMENTS = [env.strip() for env in K8S_ENVIRONMENTS]
+K8S_ENVIRONMENTS = {{ cookiecutter|k8s_environments|map(attribute="name")|list|jsonify }}
 K8S_ENVIRONMENT_VALUES_TEMPLATE = "helm/values/environment.yaml"
 
 for environment in K8S_ENVIRONMENTS:

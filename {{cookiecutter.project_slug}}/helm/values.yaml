@@ -11,6 +11,16 @@
 
 # mariadb:
 #   values: for-mariadb
+{%- if cookiecutter.deploy_3rdparty_chart %}
+
+## Values for the upstream {{ cookiecutter.upstream_project_name }} chart go under its name.
+{%- if cookiecutter.upstream_project_helm_documentation.strip()|length > 0 %}
+## See {{ cookiecutter.upstream_project_helm_documentation }} for what it supports.
+{%- endif %}
+
+# {{ cookiecutter.upstream_project_name }}:
+#   some: value
+{%- endif %}
 
 ## There are a couple of conventions we like to setup for common use. Secrets:
 secrets:

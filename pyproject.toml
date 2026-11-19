@@ -1,0 +1,12 @@
+# Configuration for the template's test suite (see test/README.md).
+# This repository is not a Python package; this file only configures pytest.
+[tool.pytest.ini_options]
+minversion = "9.2"
+testpaths = ["test"]
+# "." makes local_extensions.py importable: pytest-cookies renders the context
+# before cookiecutter adds the template directory to sys.path.
+pythonpath = ["test", "."]
+# Fixtures contain generated projects (including .py hooks output); never collect them.
+norecursedirs = ["test/fixtures", "{{cookiecutter.project_slug}}", ".venv", ".git"]
+addopts = "-ra"
+xfail_strict = true

@@ -2,17 +2,21 @@
 ## app you're deploying.
 apiVersion: v2
 
-## The name of the chart. This will likely match the
-## upstream app name for convenience. If you've been asked
-## to deploy, say, TeamDynamix, the name should probably
-## be TeamDynamix or team-dynamix or whatever. This name
-## will show up all over the cluster and in charts, graphs,
-## alerts, etc.
+## The name of the chart. This name will show up all over
+## the cluster and in charts, graphs, alerts, etc.
+{%- if cookiecutter.deploy_3rdparty_chart %}
+## This will likely match the upstream app name for
+## convenience. If you've been asked to deploy, say,
+## TeamDynamix, the name should probably be TeamDynamix
+## or team-dynamix or whatever.
+{%- endif %}
 name: {{ cookiecutter.project_slug }}
 
 ## What is this app?
 description: |
   {{ cookiecutter.project_description }}
+
+{%- if cookiecutter.deploy_3rdparty_chart %}
 
 ## The version of _this chart_. By convention, we use the
 ## following format: { upstream app version }-OHIO-{ single increasing number }
@@ -20,11 +24,21 @@ description: |
 ## The OHIO version always starts 1 for every upstream version.
 ## If your version was 1.1.2-OHIO-53 and you bump the upstream
 ## to 1.1.3, you should set the version to 1.1.3-OHIO-1.
-version: {{ cookiecutter.upstream_project_version }}-OHIO-1
+version: {{ cookiecutter.chart_version }}
 
 ## If the upstream application version is different from the
 ## chart version, set it here.
 appVersion: {{ cookiecutter.upstream_project_version }}
+{%- else %}
+
+## The version of _this chart_, as a semantic version
+## (https://semver.org). Bump it on every change.
+version: {{ cookiecutter.chart_version }}
+
+## The version of the application being deployed. If it is
+## different from the chart version, set it here.
+appVersion: {{ cookiecutter.chart_version }}
+{%- endif %}
 
 ## On which Kubernetes versions can this be deployed? This should
 ## match the minimum version on which this has been tested. This
@@ -58,14 +72,23 @@ maintainers:
 ## where the dependency is, artifacthub.io is a good way to search,
 ## the version as a semver to pull in. We prefer using exact versions
 ## so we're not surprised by upgrades.
+{%- if cookiecutter.deploy_3rdparty_chart or cookiecutter.ohio_helm_common_version.strip()|length > 0 %}
 dependencies:
+    {%- if cookiecutter.deploy_3rdparty_chart %}
     - name: {{ cookiecutter.upstream_project_name }}
       version: "~{{ cookiecutter.upstream_project_version }}"
       repository: {{ cookiecutter.upstream_project_helm_repo }}
+    {%- endif %}
     {%- if cookiecutter.ohio_helm_common_version.strip()|length > 0 %}
     - name: common
       version: "{{ cookiecutter.ohio_helm_common_version }}"
       repository: "https://registry.example.com/artifactory/helm"
     {%- endif %}
+{%- else %}
+# dependencies:
+#     - name: some-chart
+#       version: "1.2.3"
+#       repository: https://charts.example.com
+{%- endif %}
 
 type: application
